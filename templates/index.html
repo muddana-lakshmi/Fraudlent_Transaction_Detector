@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraudulent Transaction Detector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('/static/images/sample4.png'); /* Replace with your image path */
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        h1 {
+            color: #40E0D0;
+            font-size: 36px;
+            margin: 20px 0 10px;
+            margin-bottom: 40px;
+            text-align: top-center;
+        }
+        .container {
+            width: 60%;
+            max-width: 600px;
+            background-color: #00008A;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        label {
+            color: #7DF9FF;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+            background-color: #96DED1; /* Sky blue variant */
+            border: 2px solid #1E3A5F; /* Thick blue */
+            padding: 10px;
+            color: #1B1212;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button[type="submit"] {
+            padding: 10px;
+            background-color: #96DED1;
+            color: black;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button[type="submit"]:hover {
+            background-color: #7DF9FF;
+        }
+        #result {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .alert-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+            text-align: center;
+            z-index: 1000;
+        }
+        .alert-box.success {
+            background-color: #4CAF50;
+        }
+        .alert-box.error {
+            background-color: #f44336;
+        }
+        .alert-box p {
+            color: white;
+            font-size: 18px;
+            margin: 0;
+            margin-bottom: 15px;
+        }
+        .alert-box button {
+            background-color: white;
+            border: none;
+            color: inherit;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 10px 20px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fraudulent Transaction Detector</h1>
+    <div class="container">
+        <form id="uploadForm" enctype="multipart/form-data">
+            <label for="file">Choose a file to upload:</label>
+            <input type="file" name="file" id="file" accept=".csv, .json" required>
+            <button type="submit">Upload File</button>
+        </form>
+        <p id="result"></p>
+    </div>
+    <div class="alert-box" id="alertBox">
+        <p id="alertMessage"></p>
+        <button onclick="document.getElementById('alertBox').style.display='none'">OK</button>
+    </div>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData();
+            const fileInput = document.querySelector('input[name="file"]');
+            formData.append('file', fileInput.files[0]);
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const alertBox = document.getElementById('alertBox');
+                const alertMessage = document.getElementById('alertMessage');
+                
+                if (data.result === 'safe') {
+                    alertBox.className = 'alert-box success';
+                    alertMessage.textContent = 'Transaction is safe';
+                } else {
+                    alertBox.className = 'alert-box error';
+                    alertMessage.textContent = 'Fraudulent transaction detected';
+                }
+                alertBox.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</body>
+</html>
